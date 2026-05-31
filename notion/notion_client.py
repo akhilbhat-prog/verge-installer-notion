@@ -18,3 +18,10 @@ def patch(url: str, payload: dict) -> dict:
     if not resp.ok:
         raise RuntimeError(f"Notion API error {resp.status_code}: {resp.text}")
     return resp.json()
+
+
+def query(url: str, payload: dict) -> dict:
+    resp = requests.post(url, headers=HEADERS, json=payload)
+    if not resp.ok:
+        raise RuntimeError(f"Notion API error {resp.status_code}: {resp.text}")
+    return resp.json()

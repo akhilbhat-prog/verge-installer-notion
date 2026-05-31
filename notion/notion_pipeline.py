@@ -5,7 +5,8 @@ import logging
 from datetime import datetime
 
 from config import PARSED_DIR, EMAIL_DIR
-from notion.notion_client import post, patch
+from notion.notion_client import post, patch, query
+from notion.notion_config import NOTION_DATABASE_ID, NOTION_TITLE_PROPERTY
 from notion.notion_mapper import build_page_payload, parsed_to_blocks
 
 log = logging.getLogger("notion_pipeline")
@@ -66,14 +67,27 @@ def preview(message_id: str):
     print("\n=== END PREVIEW ===\n")
 
 
+def page_exists(title: str) -> bool:
+    result = query(
+        f"https://api.notion.com/v1/databases/{NOTION_DATABASE_ID}/query",
+        {"filter": {"property": NOTION_TITLE_PROPERTY, "title": {"equals": title}}},
+    )
+    return len(result.get("results", [])) > 0
+
+
 def push(message_id: str):
     meta = load_email_meta(message_id)
     parsed = load_parsed(message_id)
 
     title = build_title(meta["received_at"])
+
+    if page_exists(title):
+        log.info("Page '%s' already exists in Notion — skipping.", title)
+        return
+
     blocks = parsed_to_blocks(parsed)
 
-    # 1️⃣ Create the page
+    # Create the page
     page = post(
         "https://api.notion.com/v1/pages",
         build_page_payload(
