@@ -1,0 +1,33 @@
+name: Run Verge Installer Pipeline
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+
+    env:
+      YAHOO_EMAIL:           ${{ secrets.YAHOO_EMAIL }}
+      YAHOO_APP_PASSWORD:    ${{ secrets.YAHOO_APP_PASSWORD }}
+      YAHOO_IMAP_FOLDER:     ${{ secrets.YAHOO_IMAP_FOLDER }}
+      NEWSLETTER_FROM:       ${{ secrets.NEWSLETTER_FROM }}
+      NOTION_TOKEN:          ${{ secrets.NOTION_TOKEN }}
+      NOTION_DATABASE_ID:    ${{ secrets.NOTION_DATABASE_ID }}
+      NOTION_TITLE_PROPERTY: ${{ secrets.NOTION_TITLE_PROPERTY }}
+      NOTION_DATE_PROPERTY:  ${{ secrets.NOTION_DATE_PROPERTY }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run pipeline
+        run: python run_all.py --mode push --latest
