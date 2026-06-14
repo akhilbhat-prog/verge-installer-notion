@@ -40,7 +40,7 @@ Required env vars: `YAHOO_EMAIL`, `YAHOO_APP_PASSWORD`, `YAHOO_IMAP_FOLDER`,
 
 GitHub Actions workflow: `.github/workflows/run_installer.yml`
 - Runs `python run_all.py --mode push --latest`
-- Scheduled: **Friday, Saturday, Sunday at 14:00 UTC (7:30pm IST)**
+- Scheduled: **Friday, Saturday, Sunday at 13:00 UTC (6:30pm IST)**
 - Also triggerable manually via `workflow_dispatch`
 
 ## Deduplication

@@ -13,6 +13,7 @@ load_dotenv()
 
 YAHOO_EMAIL = os.getenv("YAHOO_EMAIL")
 YAHOO_APP_PASSWORD = os.getenv("YAHOO_APP_PASSWORD")
+NEWSLETTER_FROM = os.getenv("NEWSLETTER_FROM", "")
 
 IMAP_HOST = "imap.mail.yahoo.com"
 IMAP_PORT = 993

@@ -3,7 +3,7 @@ name: Run Verge Installer Pipeline
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 14 * * 5,6,0'  # Fri, Sat, Sun at 14:00 UTC (7:30pm IST)
+    - cron: '0 13 * * 5,6,0'  # Fri, Sat, Sun at 13:00 UTC (6:30pm IST)
 
 jobs:
   run-pipeline:

@@ -12,6 +12,7 @@ from config import (
     YAHOO_EMAIL,
     YAHOO_APP_PASSWORD,
     DEFAULT_FOLDER,
+    NEWSLETTER_FROM,
     IST,
     EMAIL_DIR,
 )
@@ -53,24 +54,33 @@ def fetch_emails(
 
         # --- Select message IDs ---
         if latest:
-            _, data = mail.search(None, "ALL")
+            if NEWSLETTER_FROM:
+                search_criteria = f'FROM "{NEWSLETTER_FROM}"'
+                log.info("Searching for emails from %s", NEWSLETTER_FROM)
+            else:
+                search_criteria = "ALL"
+                log.warning("NEWSLETTER_FROM not set; searching all emails (may miss newsletter)")
+            _, data = mail.search(None, search_criteria)
             all_ids = data[0].split()
-            candidates = all_ids[-10:]
-            best_id, best_date = None, None
-            for cid in candidates:
-                _, hdata = mail.fetch(cid, "(BODY.PEEK[HEADER.FIELDS (DATE)])")
-                raw = hdata[0][1].decode(errors="replace")
-                date_line = next(
-                    (l for l in raw.splitlines() if l.lower().startswith("date:")), None
-                )
-                if date_line:
-                    try:
-                        dt = parsedate_to_datetime(date_line[5:].strip())
-                        if best_date is None or dt > best_date:
-                            best_date, best_id = dt, cid
-                    except Exception:
-                        pass
-            ids = [best_id if best_id is not None else all_ids[-1]]
+            if not all_ids:
+                log.warning("No emails found matching search criteria")
+                ids = []
+            else:
+                best_id, best_date = None, None
+                for cid in all_ids:
+                    _, hdata = mail.fetch(cid, "(BODY.PEEK[HEADER.FIELDS (DATE)])")
+                    raw = hdata[0][1].decode(errors="replace")
+                    date_line = next(
+                        (l for l in raw.splitlines() if l.lower().startswith("date:")), None
+                    )
+                    if date_line:
+                        try:
+                            dt = parsedate_to_datetime(date_line[5:].strip())
+                            if best_date is None or dt > best_date:
+                                best_date, best_id = dt, cid
+                        except Exception:
+                            pass
+                ids = [best_id if best_id is not None else all_ids[-1]]
         elif last_n:
             _, data = mail.search(None, "ALL")
             ids = data[0].split()[-last_n:]
